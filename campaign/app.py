@@ -677,6 +677,8 @@ def dashboard_logout(access_key):
     # redirect to dashboard login
     return redirect(url_for('dashboard_login', access_key=access_key))
 
+application = app
+
 if __name__ == '__main__':
     
     app.run(
