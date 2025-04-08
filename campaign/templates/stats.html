@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNP-DICTM Security Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/faviconforpnp.png') }}">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PNP Colors */
+            --pnp-red: #c5161c;
+            --pnp-red-dark: #a11217;
+            --pnp-blue: #1a3668;
+            --pnp-blue-dark: #0d1d39;
+            
+            /* DICTM Colors */
+            --dictm-blue: #12365e;
+            --dictm-blue-light: #295d96;
+            
+            /* System Colors */
+            --primary-color: var(--pnp-blue);
+            --primary-light: #eef2ff;
+            --secondary-color: var(--dictm-blue);
+            --success-color: #2ecc71;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+            --danger-color: var(--pnp-red);
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-800: #343a40;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        body {
+            background-color: #f5f7fd;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px 0;
+            color: #2d3748;
+        }
+        
+        .dashboard-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .stats-container {
+            background-color: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(to right, var(--pnp-red), var(--pnp-red-dark));
+            padding: 1.5rem;
+            color: white;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 40px;
+        }
+        
+        .logo {
+            height: 80px;
+            object-fit: contain;
+        }
+        
+        .logo-divider {
+            height: 60px;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--pnp-red);
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .table-wrapper {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            margin-top: 1.5rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background-color: var(--pnp-blue);
+            color: white;
+            font-weight: 500;
+            border: none;
+            padding: 15px;
+        }
+        
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+        
+        .hashed-password {
+            font-family: 'Courier New', monospace;
+            background-color: var(--gray-100);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8em;
+            word-break: break-all;
+            max-width: 300px;
+            display: block;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+        
+        .delete-btn {
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            background-color: var(--pnp-red);
+            color: white;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background-color: var(--pnp-red-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .timestamp-badge {
+            background-color: var(--primary-light);
+            color: var(--pnp-blue);
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .stripe-bg {
+            background-color: #f8faff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .download-btn {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 500;
+            border: none;
+            background-color: var(--dictm-blue);
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            background-color: var(--dictm-blue-light);
+            transform: translateY(-1px);
+        }
+        
+        .clear-all-btn {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 500;
+            border: none;
+            background-color: var(--pnp-red);
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .clear-all-btn:hover {
+            background-color: var(--pnp-red-dark);
+            transform: translateY(-1px);
+        }
+        
+        .logout-btn {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 500;
+            border: none;
+            background-color: var(--gray-800);
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            background-color: #000;
+            transform: translateY(-1px);
+            color: white;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .badge.bg-primary {
+            background-color: var(--pnp-red) !important;
+        }
+        
+        .text-primary {
+            color: var(--pnp-red) !important;
+        }
+        
+        .organization-titles {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .organization-titles .main-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+        
+        .organization-titles .sub-title {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid dashboard-container">
+        <div class="stats-container p-0">
+            <div class="dashboard-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='images/pnp-logoo.png') }}" alt="PNP Logo" class="logo">
+                    <div class="logo-divider"></div>
+                    <img src="{{ url_for('static', filename='images/dictm_logonobackg.png') }}" alt="DICTM Logo" class="logo">
+                </div>
+                <div class="organization-titles">
+                    <h1 class="main-title">PHILIPPINE NATIONAL POLICE</h1>
+                    <p class="sub-title">Directorate for Information and Communications Technology Management</p>
+                </div>
+                <h2 class="text-center mb-0 mt-3">
+                    <i class="fas fa-chart-line me-2"></i>Campaign Monitoring Dashboard
+                </h2>
+                <p class="text-center text-white-50 mt-2 mb-0">Secure access monitoring system</p>
+            </div>
+            
+            <div class="p-4">
+                <div class="summary-card p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-database fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 mb-1">Statistics Summary</h3>
+                            <div class="d-flex align-items-center">
+                                <span class="me-3">Total entries: <span class="badge bg-primary">{{ entries|length }}</span></span>
+                                <span class="small text-muted me-3">Last updated: <time id="last-updated" datetime="{{ last_updated }}">{{ last_updated }}</time></span>
+                                <span class="small text-muted">Current time: <time id="current-time"></time></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons mt-4">
+                    <a href="{{ url_for('download_csv', access_key=access_key) }}" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download as CSV
+                    </a>
+                    <button type="button" class="clear-all-btn" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear All Data
+                    </button>
+                    <a href="{{ url_for('dashboard_logout', access_key=access_key) }}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+                
+                <div class="table-wrapper mt-2">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Password (Hashed)</th>
+                                    <th>Timestamp</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in entries %}
+                                <tr class="{% if loop.index is even %}stripe-bg{% endif %}" data-entry-index="{{ loop.index0 }}">
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ entry.username }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="hashed-password">{{ entry.password|hash }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="timestamp-badge">
+                                            <i class="far fa-clock me-1"></i>{{ entry.timestamp }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <button class="delete-btn" type="button" data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal" data-entry-index="{{ loop.index0 }}">
+                                                <i class="fas fa-trash-alt me-1"></i>Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white" style="background-color: var(--pnp-red) !important;">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Are you sure you want to delete this entry? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete" style="background-color: var(--pnp-red);">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete All Confirmation Modal -->
+    <div class="modal fade" id="deleteAllModal" tabindex="-1" aria-labelledby="deleteAllModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white" style="background-color: var(--pnp-red) !important;">
+                    <h5 class="modal-title" id="deleteAllModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Delete All
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold text-danger" style="color: var(--pnp-red) !important;">Warning: You are about to delete all entries!</p>
+                    <p class="mb-0">This will permanently remove all collected data. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAll" style="background-color: var(--pnp-red);">Delete All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Verification Modal -->
+    <div class="modal fade" id="passwordVerificationModal" tabindex="-1" aria-labelledby="passwordVerificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--pnp-blue); color: white;">
+                    <h5 class="modal-title" id="passwordVerificationModalLabel">
+                        <i class="fas fa-lock me-2"></i>
+                        Password Verification
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="verificationPassword" class="form-label">Enter Dashboard Password</label>
+                        <input type="password" class="form-control" id="verificationPassword" placeholder="Enter password">
+                    </div>
+                    <div id="passwordError" class="text-danger" style="display: none;">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        Invalid password. Please try again.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="verifyPassword" style="background-color: var(--pnp-blue);">Verify</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast notifications -->
+    <div class="toast-container">
+        <div class="toast align-items-center text-white border-0" id="deleteToast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: var(--pnp-red);">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Entry deleted successfully.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Flag to prevent auto-logout during intentional operations
+            let preventAutoLogout = false;
+            
+            // Add event listener for window/tab close
+            window.addEventListener('beforeunload', function(e) {
+                // Only trigger logout if not performing an intentional operation
+                if (!preventAutoLogout) {
+                    // Trigger logout when window/tab is closed
+                    fetch(`/dashboard-logout/${access_key}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        // Use keepalive to ensure the request completes even if the page is unloading
+                        keepalive: true
+                    });
+                }
+            });
+
+            // Add event listener for visibility change
+            document.addEventListener('visibilitychange', function() {
+                // Only trigger logout if not performing an intentional operation
+                if (!preventAutoLogout && document.visibilityState === 'hidden') {
+                    // Page is hidden (tab/window closed or minimized)
+                    fetch(`/dashboard-logout/${access_key}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        keepalive: true
+                    });
+                }
+            });
+
+            // Add event listener for page unload
+            window.addEventListener('unload', function(e) {
+                // Only trigger logout if not performing an intentional operation
+                if (!preventAutoLogout) {
+                    // Trigger logout when page is unloaded
+                    fetch(`/dashboard-logout/${access_key}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        keepalive: true
+                    });
+                }
+            });
+
+            // Add event listener for browser back/forward buttons
+            window.addEventListener('popstate', function(e) {
+                // Only trigger logout if not performing an intentional operation
+                if (!preventAutoLogout) {
+                    fetch(`/dashboard-logout/${access_key}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        keepalive: true
+                    });
+                }
+            });
+
+            // Update current time every second
+            function updateTime() {
+                const now = new Date();
+                const options = { 
+                    year: 'numeric', 
+                    month: 'numeric', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                };
+                document.getElementById('current-time').textContent = now.toLocaleString(undefined, options);
+            }
+            
+            // Update time immediately and then every second
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Format the last updated time nicely
+            const lastUpdatedElement = document.getElementById('last-updated');
+            if (lastUpdatedElement) {
+                const lastUpdatedDate = new Date(lastUpdatedElement.getAttribute('datetime'));
+                if (!isNaN(lastUpdatedDate.getTime())) {
+                    const options = { 
+                        year: 'numeric', 
+                        month: 'numeric', 
+                        day: 'numeric',
+                        timeZone: 'Asia/Manila'
+                    };
+                    lastUpdatedElement.textContent = lastUpdatedDate.toLocaleString('en-PH', options);
+                    
+                    // Add a tooltip with full timestamp for reference
+                    const fullOptions = { 
+                        year: 'numeric', 
+                        month: 'numeric', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        second: '2-digit', 
+                        timeZone: 'UTC',
+                        timeZoneName: 'short'
+                    };
+                    lastUpdatedElement.title = `Full timestamp (UTC): ${lastUpdatedDate.toLocaleString('en-US', fullOptions)}`;
+                }
+            }
+            
+            // Store the entry index to be deleted
+            let entryToDelete = null;
+            const access_key = '{{ access_key }}';
+            
+            // Password verification handling
+            let pendingAction = null;
+            const passwordModal = new bootstrap.Modal(document.getElementById('passwordVerificationModal'));
+            const verificationPassword = document.getElementById('verificationPassword');
+            const passwordError = document.getElementById('passwordError');
+            const verifyButton = document.getElementById('verifyPassword');
+
+            // Function to handle password verification
+            function verifyPassword(password) {
+                return fetch(`/verify-password/${access_key}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password })
+                })
+                .then(response => response.json())
+                .then(data => data.success);
+            }
+
+            // Function to execute pending action after successful verification
+            function executePendingAction() {
+                if (pendingAction) {
+                    pendingAction();
+                    pendingAction = null;
+                }
+            }
+
+            // Handle password verification
+            verifyButton.addEventListener('click', function() {
+                const password = verificationPassword.value;
+                verifyPassword(password)
+                    .then(success => {
+                        if (success) {
+                            passwordModal.hide();
+                            verificationPassword.value = '';
+                            passwordError.style.display = 'none';
+                            executePendingAction();
+                        } else {
+                            passwordError.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        passwordError.style.display = 'block';
+                    });
+            });
+
+            // Handle download button click
+            document.querySelector('.download-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Remove password verification, directly download
+                window.location.href = `/download-csv/${access_key}`;
+            });
+
+            // Handle delete button click
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                entryToDelete = button.getAttribute('data-entry-index');
+            });
+            
+            // Handle confirm delete
+            document.getElementById('confirmDelete').addEventListener('click', function() {
+                if (entryToDelete !== null) {
+                    // Set flag to prevent auto-logout
+                    preventAutoLogout = true;
+                    fetch(`/delete-entry/${access_key}/${entryToDelete}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Close modal
+                            const bsDeleteModal = bootstrap.Modal.getInstance(deleteModal);
+                            bsDeleteModal.hide();
+                            
+                            // Remove row from table
+                            const rows = document.querySelectorAll('tr[data-entry-index]');
+                            for (const row of rows) {
+                                if (row.getAttribute('data-entry-index') === entryToDelete) {
+                                    row.remove();
+                                    break;
+                                }
+                            }
+                            
+                            // Update entry count
+                            const countBadge = document.querySelector('.badge.bg-primary');
+                            if (countBadge) {
+                                const currentCount = parseInt(countBadge.textContent);
+                                countBadge.textContent = currentCount - 1;
+                            }
+                            
+                            // Show toast
+                            const toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+                            toast.show();
+                        } else {
+                            alert('Failed to delete entry. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting the entry.');
+                    });
+                }
+            });
+            
+            // Handle delete all
+            document.getElementById('confirmDeleteAll').addEventListener('click', function() {
+                // Set flag to prevent auto-logout
+                preventAutoLogout = true;
+                fetch(`/delete-all/${access_key}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Reload the page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        alert('Failed to delete all entries. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting all entries.');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

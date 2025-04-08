@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PNP Payslip Portal | Log in</title>
+    
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/faviconforpnp.png') }}">
+    
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- SweetAlert2 CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <style>
+            /* Custom SweetAlert2 styling to match our theme */
+            .swal2-popup {
+                font-family: 'Awan Zaman Medium', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                border-radius: 10px;
+                padding: 2em;
+                width: 36em;
+                max-width: 90%;
+            }
+            
+            .swal2-title {
+                color: #e74c3c;
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 15px;
+            }
+            
+            .swal2-html-container {
+                font-size: 16px;
+                line-height: 1.5;
+                text-align: left;
+            }
+            
+            .swal2-confirm {
+                background-color: #e74c3c !important;
+                color: white;
+                border-radius: 5px !important;
+                font-size: 16px;
+                padding: 12px 28px;
+                margin-top: 20px;
+                font-weight: 500;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            
+            .swal2-confirm:focus {
+                box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3) !important;
+            }
+            
+            .swal2-confirm:hover {
+                background-color: #c0392b !important;
+                transform: translateY(-1px);
+            }
+            
+            .swal2-icon.swal2-warning {
+                border-color: #e74c3c;
+                color: #e74c3c;
+            }
+            
+            /* Security alert content styling */
+            .security-alert-content {
+                text-align: left;
+                padding: 10px 5px;
+            }
+            
+            .security-alert-content p {
+                margin-bottom: 15px;
+                font-size: 16px;
+                line-height: 1.6;
+            }
+            
+            .security-alert-content p:last-child {
+                margin-bottom: 0;
+            }
+            
+            .security-alert-content h3 {
+                font-size: 18px;
+                color: #e74c3c;
+                margin: 20px 0 10px;
+                font-weight: 600;
+            }
+            
+            .security-alert-content ul {
+                margin: 10px 0 15px;
+                padding-left: 20px;
+            }
+            
+            .security-alert-content ul li {
+                margin-bottom: 8px;
+                line-height: 1.5;
+            }
+            
+            .pnp-logo-small {
+                max-width: 55px;
+                max-height: 55px;
+                object-fit: contain;
+                margin-bottom: 10px;
+                animation: logoFadeIn 0.8s ease-in-out;
+            }
+            
+            @keyframes logoFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .security-alert-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #e1e1e1;
+                padding-bottom: 15px;
+            }
+            
+            .security-alert-header .logo-container {
+                margin-right: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .security-alert-header .title-container {
+                flex: 1;
+            }
+            
+            .security-alert-header h2 {
+                margin: 0;
+                font-size: 20px;
+                color: #333;
+                line-height: 1.3;
+            }
+            
+            .security-alert-header .subtitle {
+                font-size: 14px;
+                color: #666;
+                margin-top: 5px;
+            }
+            
+            .security-info-link {
+                color: #3498db;
+                font-weight: 500;
+                text-decoration: underline;
+            }
+            
+            .security-info-link:hover {
+                color: #2980b9;
+            }
+        </style>
+    </head>
+    
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <a href="#">
+                <img src="{{ url_for('static', filename='images/pnp-logoo.png') }}" alt="PNP Seal" class="block-center img-rounded">
+            </a>
+        </div>
+        
+        <div class="welcome-message">
+            <h1>WELCOME TO THE NEW PNP<br>ONLINE PAYSLIP</h1>
+            <p>SIGN IN TO CONTINUE.</p>
+        </div>
+
+        <form class="login-form" id="loginForm" action="/login" method="post" novalidate>
+            <div class="input-group">
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                <i class="fas fa-envelope input-icon"></i>
+                <div class="error-message" id="usernameError"></div>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <i class="fas fa-lock input-icon password-icon"></i>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <button type="button" class="login-btn" id="loginButton">Login</button>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script>
+        document.getElementById('loginButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Validate username and password before showing popup
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const usernameError = document.getElementById('usernameError');
+            const passwordError = document.getElementById('passwordError');
+            
+            // Clear previous error messages
+            usernameError.textContent = '';
+            passwordError.textContent = '';
+            
+            // Check if fields are empty
+            let isValid = true;
+            if (!username) {
+                usernameError.textContent = 'Please enter Username';
+                isValid = false;
+            }
+            
+            if (!password) {
+                passwordError.textContent = 'Please enter Password';
+                isValid = false;
+            }
+            
+            // Only show popup if form is valid
+            if (isValid) {
+                showPhishingAlert();
+            }
+        });
+        
+        // Function to show the SweetAlert2 notification
+        function showPhishingAlert() {
+            Swal.fire({
+                title: '',
+                html: `
+                    <div class="security-alert-content">
+                        <div class="security-alert-header">
+                            <div class="logo-container">
+                                <img src="{{ url_for('static', filename='images/pnp-logoo.png') }}" alt="PNP Logo" class="pnp-logo-small">
+                                <img src="{{ url_for('static', filename='images/dictm_logonobackg.png') }}" alt="DICTM Logo" class="pnp-logo-small">
+                            </div>
+                            <div class="title-container">
+                                <h2>SECURITY AWARENESS NOTIFICATION</h2>
+                                <div class="subtitle">Cyber Security Operation Center</div>
+                            </div>
+                        </div>
+                        
+                        <p><strong>This is a phishing awareness campaign</strong> conducted by the Philippine National Police - Cyber Security Operation Center.</p>
+                        
+                        <p>No sensitive information has been collected or stored in compliance with the <strong>Data Privacy Act of 2012</strong>. This simulation is solely for evaluation and educational purposes.</p>
+                        
+                        <h3>How to Protect Yourself from Phishing</h3>
+                        <ul>
+                            <li>Always verify website URLs before entering credentials</li>
+                            <li>Check for secure connections (https://) and valid certificates</li>
+                            <li>Be suspicious of unexpected login requests</li>
+                            <li>THINK before you CLICK</li>
+                        </ul>
+                        
+                        <p>For more information about phishing threats and how to stay safe online, visit: <a href="https://www.digitalguardian.com/blog/dont-get-hooked-how-recognize-and-avoid-phishing-attacks-infographic" target="_blank" class="security-info-link">Phishing Awareness Infographic</a></p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'I Understand, Continue to Official Site',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                backdrop: `rgba(0,0,0,0.85)`,
+                width: '600px',
+                padding: '0',
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
+                },
+                customClass: {
+                    container: 'security-alert-container',
+                    popup: 'security-alert-popup',
+                    header: 'security-alert-swal-header',
+                    content: 'security-alert-swal-content',
+                    confirmButton: 'security-alert-confirm-button'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form after showing the phishing awareness notification
+                    document.getElementById('loginForm').submit();
+                }
+            });
+        }
+
+        // enable Enter key for login with validation //
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                
+                // Validate form before showing popup
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const usernameError = document.getElementById('usernameError');
+                const passwordError = document.getElementById('passwordError');
+                
+                // Clear previous error messages //
+                usernameError.textContent = '';
+                passwordError.textContent = '';
+                
+                // Check if fields are empty
+                let isValid = true;
+                if (!username) {
+                    usernameError.textContent = 'Please enter Username';
+                    isValid = false;
+                }
+                
+                if (!password) {
+                    passwordError.textContent = 'Please enter Password';
+                    isValid = false;
+                }
+                
+                // only show popup if form is valid //
+                if (isValid) {
+                    showPhishingAlert();
+                }
+            }
+        });
+
+        // Preload logos for notification
+        document.addEventListener('DOMContentLoaded', function() {
+            // Preload logo images
+            const pnpLogo = new Image();
+            pnpLogo.src = "{{ url_for('static', filename='images/pnp-logoo.png') }}";
+            
+            const dictmLogo = new Image();
+            dictmLogo.src = "{{ url_for('static', filename='images/dictm_logonobackg.png') }}";
+        });
+    </script>
+</body>
+</html> 
