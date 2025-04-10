@@ -677,10 +677,8 @@ def dashboard_logout(access_key):
     # redirect to dashboard login
     return redirect(url_for('dashboard_login', access_key=access_key))
 
-if __name__ == '__main__':
-    
-    app.run(
-        host='0.0.0.0',  
-        port=5000,       
-        debug=False      
-    ) 
+# Add this line to expose the Flask app for Gunicorn
+application = app
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0") 
